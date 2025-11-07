@@ -1,0 +1,21 @@
+{
+  "name": "gestion-tareas",
+  "version": "1.0.0",
+  "description": "Sistema de Gestión de Proyectos y Tareas",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/main/resources/static/css/input.css -o ./src/main/resources/static/css/tailwind.min.css --minify",
+    "watch:css": "tailwindcss -i ./src/main/resources/static/css/input.css -o ./src/main/resources/static/css/tailwind.min.css --watch",
+    "dev": "npm run watch:css"
+  },
+  "keywords": [
+    "spring-boot",
+    "thymeleaf",
+    "tailwindcss",
+    "java"
+  ],
+  "author": "Sistema de Gestión de Tareas",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}

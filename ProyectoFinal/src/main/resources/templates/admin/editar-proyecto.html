@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Proyecto - Admin</title>
+    <div th:replace="~{fragments/dark-mode :: tailwind-dark-config}"></div>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <div th:replace="~{fragments/admin-navbar :: navbar('proyectos')}"></div>
+    <div th:replace="~{fragments/notifications :: toast-container}"></div>
+
+    <main class="max-w-3xl mx-auto py-8 px-4">
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg">
+            <div class="bg-indigo-600 px-6 py-4">
+                <h2 class="text-2xl font-bold text-white">Editar Proyecto</h2>
+            </div>
+
+            <form th:action="@{/admin/proyectos/{id}/editar(id=${project.id})}" th:object="${projectDto}" method="post" class="px-6 py-6 space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre <span class="text-red-500">*</span></label>
+                    <input type="text" th:field="*{name}" class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-sm text-red-600"></p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Descripción <span class="text-red-500">*</span></label>
+                    <textarea th:field="*{description}" rows="4" class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+                    <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="text-sm text-red-600"></p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Líder <span class="text-red-500">*</span></label>
+                    <select th:field="*{leaderId}" class="w-full px-4 py-3 border rounded-lg">
+                        <option th:each="lider : ${lideres}" th:value="${lider.id}" th:text="${lider.fullName + ' (' + lider.email + ')'}"></option>
+                    </select>
+                    <p th:if="${#fields.hasErrors('leaderId')}" th:errors="*{leaderId}" class="text-sm text-red-600"></p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado <span class="text-red-500">*</span></label>
+                    <select th:field="*{status}" class="w-full px-4 py-3 border rounded-lg">
+                        <option th:each="estado : ${statuses}" th:value="${estado}" th:text="${estado}"></option>
+                    </select>
+                    <p th:if="${#fields.hasErrors('status')}" th:errors="*{status}" class="text-sm text-red-600"></p>
+                </div>
+
+                <div class="flex justify-between pt-4 border-t">
+                    <a href="/admin/proyectos" class="px-6 py-3 border rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50">Cancelar</a>
+                    <button type="submit" class="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script th:replace="~{fragments/admin-navbar :: mobile-menu-script}"></script>
+    <script th:replace="~{fragments/notifications :: notification-scripts}"></script>
+    <div th:replace="~{fragments/dark-mode :: dark-mode-script}"></div>
+</body>
+</html>

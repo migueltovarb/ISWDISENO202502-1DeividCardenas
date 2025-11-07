@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html th:fragment="layout (title, content, activeSection)"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!--
+    colaborador-layout.html - Layout para páginas de Colaborador
+
+    PROPÓSITO:
+    Layout que incluye la navbar de colaborador y notificaciones.
+    Todas las páginas del colaborador (mis tareas, perfil) usan este layout.
+
+    @since 2025-11-06
+-->
+<head>
+    <title>Colaborador Layout</title>
+</head>
+<body>
+    <div th:replace="~{layouts/base :: layout(${title}, ~{::colaborador-content})}">
+        <div th:fragment="colaborador-content">
+            <!-- Navbar de Colaborador -->
+            <div th:replace="~{fragments/colaborador-navbar :: navbar(${activeSection})}"></div>
+
+            <!-- Toast Container -->
+            <div th:replace="~{fragments/notifications :: toast-container}"></div>
+
+            <!-- Modal de Confirmación -->
+            <div th:replace="~{fragments/notifications :: confirmation-modal}"></div>
+
+            <!-- Contenido principal -->
+            <div th:replace="${content}"></div>
+        </div>
+    </div>
+</body>
+</html>

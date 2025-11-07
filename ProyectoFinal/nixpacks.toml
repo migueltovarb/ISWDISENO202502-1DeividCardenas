@@ -1,0 +1,9 @@
+[phases.setup]
+# Java 21 para Spring Boot y Node.js 20 para compilar Tailwind CSS
+nixPkgs = ["jdk21", "nodejs_20"]
+
+[phases.build]
+cmds = ["chmod +x railway-build.sh", "./railway-build.sh"]
+
+[start]
+cmd = "java -Dserver.port=$PORT -Dspring.profiles.active=production -jar target/gestion-tareas-0.0.1-SNAPSHOT.jar"

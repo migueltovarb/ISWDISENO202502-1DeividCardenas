@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionar Colaboradores - Panel de Líder</title>
+    <div th:replace="~{fragments/dark-mode :: tailwind-dark-config}"></div>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200 min-h-screen">
+    <!-- NAVBAR -->
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Panel de Líder</h1>
+                <div class="flex items-center space-x-4">
+                    <a th:href="@{/lider/proyecto/{id}(id=${project.id})}"
+                       class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                        ← Volver al Proyecto
+                    </a>
+
+                    <!-- Dark Mode Toggle -->
+                    <div th:replace="~{fragments/dark-mode :: toggle-button}"></div>
+
+                    <form th:action="@{/logout}" method="post" class="inline">
+                        <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                            Cerrar Sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <!-- MENSAJES -->
+        <div th:if="${successMessage}" class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-r">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <p class="text-sm text-green-700 font-medium" th:text="${successMessage}"></p>
+            </div>
+        </div>
+
+        <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                <p class="text-sm text-red-700 font-medium" th:text="${errorMessage}"></p>
+            </div>
+        </div>
+
+        <!-- HEADER -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Gestionar Colaboradores</h2>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        Proyecto: <span class="font-semibold" th:text="${project.name}">Nombre</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- AGREGAR COLABORADOR -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                <div class="bg-green-600 px-6 py-4">
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                        </svg>
+                        Agregar Colaborador
+                    </h3>
+                </div>
+
+                <form th:action="@{/lider/proyecto/{id}/colaboradores/agregar(id=${project.id})}"
+                      method="post"
+                      class="p-6">
+                    <div class="mb-4">
+                        <label for="userId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Seleccionar Usuario
+                        </label>
+                        <select id="userId"
+                                name="userId"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="" selected disabled>Seleccionar usuario...</option>
+                            <option th:each="user : ${availableUsers}"
+                                    th:value="${user.id()}"
+                                    th:text="${user.displayName()}">
+                            </option>
+                        </select>
+                        <p class="mt-2 text-xs text-gray-500">
+                            Solo puedes agregar usuarios con rol Colaborador o Líder
+                        </p>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition shadow-md hover:shadow-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Agregar al Proyecto
+                    </button>
+                </form>
+            </div>
+
+            <!-- COLABORADORES ACTUALES -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                <div class="bg-indigo-600 px-6 py-4">
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        Colaboradores Actuales
+                    </h3>
+                </div>
+
+                <div class="p-6">
+                    <div th:if="${#lists.isEmpty(currentCollaborators)}" class="text-center py-8">
+                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <p class="text-gray-500">No hay colaboradores en este proyecto</p>
+                        <p class="text-sm text-gray-400 mt-2">Agrega colaboradores usando el formulario de la izquierda</p>
+                    </div>
+
+                    <div th:if="${!#lists.isEmpty(currentCollaborators)}" class="space-y-3">
+                        <div th:each="collab : ${currentCollaborators}"
+                             class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                                    <span class="text-indigo-600 font-semibold text-sm"
+                                          th:text="${#strings.substring(collab.fullName, 0, 2).toUpperCase()}">AB</span>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white" th:text="${collab.fullName}">Nombre</p>
+                                    <p class="text-xs text-gray-500" th:text="${collab.email}">email@example.com</p>
+                                </div>
+                            </div>
+
+                            <form th:action="@{/lider/proyecto/{projectId}/colaboradores/{userId}/remover(projectId=${project.id}, userId=${collab.id})}"
+                                  method="post"
+                                  onsubmit="return confirm('¿Estás seguro de que quieres remover a este colaborador del proyecto?');">
+                                <button type="submit"
+                                        class="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition text-sm font-medium">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INFO BOX -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <div class="flex items-start">
+                <svg class="w-6 h-6 text-blue-500 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <div class="text-sm text-blue-800">
+                    <p class="font-medium mb-2">Información sobre la gestión de colaboradores:</p>
+                    <ul class="list-disc list-inside space-y-1 text-blue-700">
+                        <li>Los colaboradores pueden ver el proyecto y sus tareas</li>
+                        <li>Solo los colaboradores asignados pueden recibir tareas de este proyecto</li>
+                        <li>Al remover un colaborador, sus tareas asignadas NO se eliminan automáticamente</li>
+                        <li>El líder del proyecto no puede ser removido de la lista de colaboradores</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-12">
+        <div class="max-w-6xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-gray-500">
+                Sistema de Gestión de Proyectos y Tareas
+            </p>
+        </div>
+    </footer>
+    <div th:replace="~{fragments/dark-mode :: dark-mode-script}"></div>
+</body>
+</html>

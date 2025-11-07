@@ -1,0 +1,127 @@
+/**
+ * input.css - Archivo fuente de Tailwind CSS
+ *
+ * Este archivo se compila con el CLI de Tailwind para generar
+ * el archivo final tailwind.min.css que se sirve al navegador.
+ *
+ * PROCESO DE BUILD:
+ * input.css → Tailwind CLI → tailwind.min.css (optimizado)
+ *
+ * TAMAÑO:
+ * - input.css: ~1KB (solo directivas)
+ * - tailwind.min.css: ~15KB (solo clases usadas en templates)
+ * - CDN completo: 3.7MB (todas las clases, no optimizado)
+ *
+ * COMANDO DE BUILD:
+ * npm run build:css
+ */
+
+/* Directivas de Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Estilos base personalizados
+ * Se aplican a elementos HTML directamente
+ */
+@layer base {
+  /* Ejemplo: Estilos para el body */
+  body {
+    @apply antialiased;
+  }
+
+  /* Ejemplo: Estilos para headings */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+  }
+}
+
+/**
+ * Componentes personalizados
+ * Clases reutilizables que puedes usar en tu HTML
+ */
+@layer components {
+  /* Ejemplo: Botón primario personalizado */
+  .btn-primary {
+    @apply px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg;
+    @apply hover:bg-indigo-700 transition-colors duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2;
+  }
+
+  /* Ejemplo: Tarjeta personalizada */
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6;
+    @apply border border-gray-200 dark:border-gray-700;
+  }
+
+  /* Ejemplo: Input personalizado */
+  .input-field {
+    @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg;
+    @apply focus:ring-2 focus:ring-indigo-500 focus:border-transparent;
+    @apply bg-white dark:bg-gray-700 text-gray-900 dark:text-white;
+    @apply placeholder-gray-400 dark:placeholder-gray-500;
+  }
+}
+
+/**
+ * Utilidades personalizadas
+ * Clases de una sola propiedad que extienden las utilidades de Tailwind
+ */
+@layer utilities {
+  /* Ejemplo: Scrollbar personalizada */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-800;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-600 rounded-lg;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400 dark:bg-gray-500;
+  }
+}
+
+/**
+ * Animaciones personalizadas
+ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/**
+ * Variables CSS personalizadas (CSS Custom Properties)
+ * Útiles para temas dinámicos
+ */
+:root {
+  --primary-color: #4F46E5;
+  --secondary-color: #7C3AED;
+  --success-color: #10B981;
+  --danger-color: #EF4444;
+  --warning-color: #F59E0B;
+}
+
+.dark {
+  --primary-color: #6366F1;
+  --secondary-color: #8B5CF6;
+}

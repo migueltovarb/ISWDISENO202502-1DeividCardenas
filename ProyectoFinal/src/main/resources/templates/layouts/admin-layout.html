@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html th:fragment="layout (title, content, activeSection)"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!--
+    admin-layout.html - Layout para páginas de Administrador
+
+    PROPÓSITO:
+    Layout que incluye la navbar de administrador y notificaciones.
+    Todas las páginas del admin (dashboard, usuarios, proyectos) usan este layout.
+
+    HERENCIA:
+    Este layout hereda de base.html y le añade componentes específicos de admin.
+
+    USO EN UNA PÁGINA ADMIN:
+    ```html
+    <!DOCTYPE html>
+    <html th:replace="~{layouts/admin-layout :: layout('Usuarios', ~{::content}, 'usuarios')}">
+    <body>
+        <div th:fragment="content">
+            <!-- Contenido específico de la página de usuarios -->
+        </div>
+    </body>
+    </html>
+    ```
+
+    PARÁMETROS:
+    - title: Título de la página
+    - content: Contenido específico de la página
+    - activeSection: Sección activa en la navbar ('dashboard', 'usuarios', 'proyectos')
+
+    @since 2025-11-06
+-->
+<head>
+    <title>Admin Layout</title>
+</head>
+<body>
+    <!-- Usamos el layout base y le inyectamos contenido específico de admin -->
+    <div th:replace="~{layouts/base :: layout(${title}, ~{::admin-content})}">
+        <div th:fragment="admin-content">
+            <!-- Navbar de Admin -->
+            <div th:replace="~{fragments/admin-navbar :: navbar(${activeSection})}"></div>
+
+            <!-- Toast Container (notificaciones) -->
+            <div th:replace="~{fragments/notifications :: toast-container}"></div>
+
+            <!-- Modal de Confirmación -->
+            <div th:replace="~{fragments/notifications :: confirmation-modal}"></div>
+
+            <!-- Contenido principal (pasado desde la página específica) -->
+            <div th:replace="${content}"></div>
+        </div>
+    </div>
+</body>
+</html>

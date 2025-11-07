@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html th:fragment="layout (title, content)"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      class="">
+<!--
+    base.html - Layout Base para todas las páginas
+
+    PROPÓSITO:
+    Plantilla base reutilizable que define la estructura común de todas las páginas.
+    Elimina duplicación de código HTML (header, scripts, meta tags, etc.)
+
+    USO EN UNA PÁGINA:
+    ```html
+    <!DOCTYPE html>
+    <html th:replace="~{layouts/base :: layout('Mi Título', ~{::content})}">
+    <body>
+        <div th:fragment="content">
+            <!-- Contenido específico de la página -->
+        </div>
+    </body>
+    </html>
+    ```
+
+    VENTAJAS:
+    - DRY (Don't Repeat Yourself): Cambio en un lugar se aplica a todas las páginas
+    - Consistencia: Todas las páginas tienen la misma estructura
+    - Mantenibilidad: Fácil actualizar scripts, meta tags, etc.
+    - SEO: Meta tags centralizados
+
+    @author Sistema de Gestión de Tareas
+    @version 2.0
+    @since 2025-11-06
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- Título dinámico de la página -->
+    <title th:text="${title} + ' - Gestión de Proyectos'">Gestión de Proyectos</title>
+
+    <!-- Meta tags SEO -->
+    <meta name="description" content="Sistema de Gestión de Proyectos y Tareas">
+    <meta name="author" content="Sistema de Gestión de Tareas">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+
+    <!-- Tailwind CSS - Build optimizado local (~15KB vs 3.7MB del CDN) -->
+    <link rel="stylesheet" th:href="@{/css/tailwind.min.css}">
+
+    <!-- Configuración de Dark Mode -->
+    <div th:replace="~{fragments/dark-mode :: tailwind-dark-config}"></div>
+
+    <!-- Script de inicialización de Dark Mode (evita flash) -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+
+    <!-- Estilos personalizados (opcional) -->
+    <style>
+        /* Animación para transiciones suaves */
+        * {
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200 min-h-screen">
+    <!-- Contenedor principal -->
+    <div class="min-h-screen flex flex-col">
+        <!-- Contenido dinámico (reemplazado por cada página) -->
+        <div th:replace="${content}">
+            <!-- Este div será reemplazado por el contenido específico de cada página -->
+            <p>Contenido de la página</p>
+        </div>
+    </div>
+
+    <!-- Scripts globales -->
+
+    <!-- Script de Dark Mode -->
+    <div th:replace="~{fragments/dark-mode :: dark-mode-script}"></div>
+
+    <!-- Script de validación del lado del cliente -->
+    <script th:src="@{/js/validation.js}"></script>
+
+    <!-- Analytics (opcional, descomentar en producción) -->
+    <!--
+    <script>
+        // Google Analytics, Plausible, etc.
+    </script>
+    -->
+</body>
+</html>

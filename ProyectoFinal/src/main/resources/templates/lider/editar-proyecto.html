@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Proyecto - Panel de Líder</title>
+    <div th:replace="~{fragments/dark-mode :: tailwind-dark-config}"></div>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200 min-h-screen">
+    <!-- NAVBAR -->
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Panel de Líder</h1>
+                <div class="flex items-center space-x-4">
+                    <a th:href="@{/lider/proyecto/{id}(id=${project.id})}"
+                       class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                        ← Volver al Proyecto
+                    </a>
+
+                    <!-- Dark Mode Toggle -->
+                    <div th:replace="~{fragments/dark-mode :: toggle-button}"></div>
+
+                    <form th:action="@{/logout}" method="post" class="inline">
+                        <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                            Cerrar Sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+            <!-- HEADER -->
+            <div class="bg-indigo-600 px-6 py-4">
+                <h2 class="text-2xl font-bold text-white flex items-center">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    Editar Proyecto
+                </h2>
+                <p class="text-indigo-100 text-sm mt-1">Actualiza la información del proyecto</p>
+            </div>
+
+            <!-- FORM -->
+            <form th:action="@{/lider/proyecto/{id}/editar(id=${project.id})}"
+                  method="post"
+                  class="px-6 py-6 space-y-6">
+
+                <!-- NOMBRE -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Nombre del Proyecto <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text"
+                           id="name"
+                           name="name"
+                           th:value="${project.name}"
+                           required
+                           placeholder="Ej: Sistema de Gestión de Proyectos"
+                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                    <p class="mt-1 text-xs text-gray-500">Nombre descriptivo del proyecto</p>
+                </div>
+
+                <!-- DESCRIPCIÓN -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Descripción <span class="text-red-500">*</span>
+                    </label>
+                    <textarea id="description"
+                              name="description"
+                              rows="5"
+                              required
+                              th:text="${project.description}"
+                              placeholder="Describe el proyecto, sus objetivos y alcance..."
+                              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"></textarea>
+                    <p class="mt-1 text-xs text-gray-500">Proporciona una descripción detallada</p>
+                </div>
+
+                <!-- ESTADO Y FECHAS EN GRID -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- ESTADO -->
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Estado <span class="text-red-500">*</span>
+                        </label>
+                        <select id="status"
+                                name="status"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                            <option th:each="s : ${statuses}"
+                                    th:value="${s.name()}"
+                                    th:text="${s.displayName}"
+                                    th:selected="${s == project.status}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- FECHA DE INICIO -->
+                    <div>
+                        <label for="startDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Fecha de Inicio
+                        </label>
+                        <input type="date"
+                               id="startDate"
+                               name="startDate"
+                               th:value="${project.startDate}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                    </div>
+
+                    <!-- FECHA DE FIN -->
+                    <div>
+                        <label for="endDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Fecha de Fin
+                        </label>
+                        <input type="date"
+                               id="endDate"
+                               name="endDate"
+                               th:value="${project.endDate}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                    </div>
+                </div>
+
+                <!-- INFO BOX -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                        <div class="text-sm text-blue-800">
+                            <p class="font-medium mb-1">Información importante:</p>
+                            <ul class="list-disc list-inside space-y-1 text-blue-700">
+                                <li>El progreso se calcula automáticamente según las tareas completadas</li>
+                                <li>Cambiar el estado a "Completado" marcará el proyecto como finalizado</li>
+                                <li>Las fechas son opcionales pero ayudan con la planificación</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200"></div>
+
+                <!-- BUTTONS -->
+                <div class="flex items-center justify-between">
+                    <a th:href="@{/lider/proyecto/{id}(id=${project.id})}"
+                       class="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 transition">
+                        Cancelar
+                    </a>
+                    <button type="submit"
+                            class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition shadow-md hover:shadow-lg flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+    <div th:replace="~{fragments/dark-mode :: dark-mode-script}"></div>
+</body>
+</html>

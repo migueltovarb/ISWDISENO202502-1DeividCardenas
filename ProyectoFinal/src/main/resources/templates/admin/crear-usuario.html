@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" class="">
+<!--
+    admin/crear-usuario.html - Formulario de creación de usuarios
+
+    PROPÓSITO:
+    Permite al administrador crear nuevos usuarios del sistema
+    (Líderes y Colaboradores) especificando su nombre, email, contraseña y rol.
+
+    CARACTERÍSTICAS:
+    - Formulario vinculado a UserRegistrationDto con Thymeleaf
+    - Validaciones del lado del cliente (HTML5) y servidor (Jakarta Validation)
+    - Mensajes de error y éxito dinámicos
+    - Select con los roles disponibles
+    - Diseño responsivo con Tailwind CSS
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Usuario - Admin</title>
+    <div th:replace="~{fragments/dark-mode :: tailwind-dark-config}"></div>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200 min-h-screen">
+    <!-- NAVBAR -->
+    <div th:replace="~{fragments/admin-navbar :: navbar('crear-usuario')}"></div>
+    <div th:replace="~{fragments/notifications :: toast-container}"></div>
+    <div th:replace="~{fragments/loading :: spinner}"></div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="max-w-3xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+
+        <!-- TARJETA DEL FORMULARIO -->
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+
+            <!-- ENCABEZADO -->
+            <div class="bg-indigo-600 px-6 py-4">
+                <h2 class="text-2xl font-bold text-white flex items-center">
+                    <!-- Icono -->
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                    </svg>
+                    Crear Nuevo Usuario
+                </h2>
+                <p class="text-indigo-100 text-sm mt-1">
+                    Complete el formulario para registrar un nuevo líder o colaborador
+                </p>
+            </div>
+
+            <!-- MENSAJES DE ÉXITO/ERROR -->
+            <div class="px-6 pt-6">
+                <!-- Mensaje de éxito (flash attribute) -->
+                <div th:if="${successMessage}"
+                     class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 rounded-r">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <p class="text-sm text-green-700" th:text="${successMessage}"></p>
+                    </div>
+                </div>
+
+                <!-- Mensaje de error (de negocio, ej: email duplicado) -->
+                <div th:if="${errorMessage}"
+                     class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <p class="text-sm text-red-700" th:text="${errorMessage}"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORMULARIO -->
+            <!--
+                ATRIBUTOS IMPORTANTES:
+                - th:action: URL de destino del formulario
+                - th:object: Vincula el formulario al DTO
+                - method="post": Envía datos por POST
+            -->
+            <form th:action="@{/admin/crear-usuario}"
+                  th:object="${userDto}"
+                  method="post"
+                  class="px-6 pb-6 space-y-6">
+
+                <!-- CAMPO: NOMBRE COMPLETO -->
+                <div>
+                    <label for="fullName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Nombre Completo
+                        <span class="text-red-500">*</span>
+                    </label>
+
+                    <!--
+                        th:field="*{fullName}":
+                        - Vincula este input al campo 'fullName' del DTO
+                        - Genera automáticamente id, name y value
+                        - Equivalente a: name="fullName" id="fullName" value="${userDto.fullName}"
+                    -->
+                    <input
+                        type="text"
+                        th:field="*{fullName}"
+                        placeholder="Ej: Juan Pérez García"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
+                               focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+                               transition duration-150">
+
+                    <!--
+                        MENSAJE DE ERROR DE VALIDACIÓN
+                        th:if="${#fields.hasErrors('fullName')}":
+                        - Muestra este div solo si hay errores en el campo fullName
+                        - Los errores vienen de las anotaciones @NotBlank, @Size, etc.
+                    -->
+                    <p th:if="${#fields.hasErrors('fullName')}"
+                       th:errors="*{fullName}"
+                       class="mt-1 text-sm text-red-600">
+                        Error en nombre
+                    </p>
+
+                    <!-- Ayuda contextual -->
+                    <p class="mt-1 text-xs text-gray-500">
+                        Mínimo 3 caracteres, máximo 100
+                    </p>
+                </div>
+
+                <!-- CAMPO: EMAIL -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Email
+                        <span class="text-red-500">*</span>
+                    </label>
+
+                    <input
+                        type="email"
+                        th:field="*{email}"
+                        placeholder="usuario@ejemplo.com"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
+                               focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+                               transition duration-150">
+
+                    <!-- Error de validación -->
+                    <p th:if="${#fields.hasErrors('email')}"
+                       th:errors="*{email}"
+                       class="mt-1 text-sm text-red-600">
+                        Error en email
+                    </p>
+
+                    <p class="mt-1 text-xs text-gray-500">
+                        Este email se usará para iniciar sesión
+                    </p>
+                </div>
+
+                <!-- CAMPO: CONTRASEÑA -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Contraseña
+                        <span class="text-red-500">*</span>
+                    </label>
+
+                    <input
+                        type="password"
+                        th:field="*{password}"
+                        placeholder="Mínimo 8 caracteres"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
+                               focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+                               transition duration-150">
+
+                    <!-- Error de validación -->
+                    <p th:if="${#fields.hasErrors('password')}"
+                       th:errors="*{password}"
+                       class="mt-1 text-sm text-red-600">
+                        Error en contraseña
+                    </p>
+
+                    <p class="mt-1 text-xs text-gray-500">
+                        Mínimo 8 caracteres. El usuario podrá cambiarla después.
+                    </p>
+                </div>
+
+                <!-- CAMPO: ROL -->
+                <div>
+                    <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Rol
+                        <span class="text-red-500">*</span>
+                    </label>
+
+                    <!--
+                        SELECT DE ROL
+                        th:field="*{role}":
+                        - Vincula el select al campo 'role' del DTO
+                        - El valor seleccionado se asigna automáticamente
+
+                        th:each="rol : ${roles}":
+                        - Itera sobre el array de roles pasado desde el controlador
+                        - 'rol' es la variable de iteración (cada enum Role)
+
+                        th:value="${rol}":
+                        - El valor que se envía al backend (ej: "LIDER")
+
+                        th:text="${rol.displayName}":
+                        - El texto que ve el usuario (ej: "Líder de Proyecto")
+                    -->
+                    <select
+                        th:field="*{role}"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
+                               focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+                               transition duration-150">
+
+                        <!-- Opción por defecto -->
+                        <option value="" selected disabled>Seleccione un rol</option>
+
+                        <!-- Opciones dinámicas desde el enum -->
+                        <option th:each="rol : ${roles}"
+                                th:value="${rol}"
+                                th:text="${rol.displayName}">
+                            Rol
+                        </option>
+                    </select>
+
+                    <!-- Error de validación -->
+                    <p th:if="${#fields.hasErrors('role')}"
+                       th:errors="*{role}"
+                       class="mt-1 text-sm text-red-600">
+                        Error en rol
+                    </p>
+
+                    <!-- Descripción de roles -->
+                    <div class="mt-2 p-3 bg-gray-50 rounded-md border border-gray-200">
+                        <p class="text-xs text-gray-700 dark:text-gray-300 font-medium mb-1">Roles disponibles:</p>
+                        <ul class="text-xs text-gray-600 space-y-1">
+                            <li><strong>Líder:</strong> Crea proyectos, asigna tareas</li>
+                            <li><strong>Colaborador:</strong> Ejecuta tareas asignadas</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- SEPARADOR -->
+                <div class="border-t border-gray-200"></div>
+
+                <!-- BOTONES DE ACCIÓN -->
+                <div class="flex items-center justify-between">
+                    <!-- Botón Cancelar -->
+                    <a href="/admin/dashboard"
+                       class="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
+                              text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50
+                              transition duration-150">
+                        Cancelar
+                    </a>
+
+                    <!-- Botón Crear Usuario -->
+                    <button
+                        type="submit"
+                        class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700
+                               text-white font-medium rounded-lg
+                               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                               transition duration-150 shadow-md hover:shadow-lg
+                               flex items-center">
+                        <!-- Icono -->
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Crear Usuario
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+        <!-- INFORMACIÓN ADICIONAL -->
+        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-start">
+                <!-- Icono de información -->
+                <svg class="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+
+                <!-- Texto informativo -->
+                <div class="text-sm text-blue-800">
+                    <p class="font-medium mb-1">Notas importantes:</p>
+                    <ul class="list-disc list-inside space-y-1 text-blue-700">
+                        <li>El email debe ser único en el sistema</li>
+                        <li>El usuario recibirá estas credenciales para su primer acceso</li>
+                        <li>Se recomienda que cambien la contraseña después del primer login</li>
+                        <li>Los roles determinan los permisos en el sistema</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- SCRIPTS -->
+    <script th:replace="~{fragments/admin-navbar :: mobile-menu-script}"></script>
+    <script th:replace="~{fragments/notifications :: notification-scripts}"></script>
+    <div th:replace="~{fragments/loading :: loading-scripts}"></div>
+    <script>
+        // Auto-focus en el primer campo
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('input[type="text"]')?.focus();
+        });
+    </script>
+    <div th:replace="~{fragments/dark-mode :: dark-mode-script}"></div>
+</body>
+</html>

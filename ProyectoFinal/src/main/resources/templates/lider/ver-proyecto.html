@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${project.name} + ' - Proyecto'">Ver Proyecto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <div th:replace="~{fragments/dark-mode :: tailwind-dark-config}"></div>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200 min-h-screen">
+    <!-- NAVBAR -->
+    <div th:replace="~{fragments/lider-navbar :: navbar('proyectos')}"></div>
+
+    <!-- MAIN -->
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <!-- MENSAJES -->
+        <div th:if="${successMessage}" class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-r">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <p class="text-sm text-green-700 font-medium" th:text="${successMessage}"></p>
+            </div>
+        </div>
+
+        <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                <p class="text-sm text-red-700 font-medium" th:text="${errorMessage}"></p>
+            </div>
+        </div>
+
+        <!-- HEADER DEL PROYECTO -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-4 mb-2">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white" th:text="${project.name}">Nombre del Proyecto</h1>
+                        <span th:class="${project.statusBadgeClass} + ' px-3 py-1 rounded-full text-xs font-medium'"
+                              th:text="${project.status.displayName}">Estado</span>
+                    </div>
+                    <p class="text-gray-600 mb-4" th:text="${project.description}">Descripción del proyecto</p>
+                    <div class="flex items-center flex-wrap gap-6 text-sm text-gray-500">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            <span>Líder: <strong th:text="${project.leaderName}">Nombre Líder</strong></span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            <span>Tareas: <strong th:text="${project.totalTasks}">0</strong></span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span>Progreso: <strong th:text="${project.progress + '%'}">0%</strong></span>
+                        </div>
+                        <div class="flex items-center" th:if="${project.startDate != null}">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span>Inicio: <strong th:text="${#temporals.format(project.startDate, 'dd/MM/yyyy')}">--</strong></span>
+                        </div>
+                        <div class="flex items-center" th:if="${project.endDate != null}">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span>Fin: <strong th:text="${#temporals.format(project.endDate, 'dd/MM/yyyy')}">--</strong></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ml-6">
+                    <a th:href="@{/lider/proyecto/{id}/nueva-tarea(id=${project.id})}"
+                       class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition shadow-md">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Nueva Tarea
+                    </a>
+                </div>
+            </div>
+
+            <!-- BARRA DE PROGRESO -->
+            <div class="mt-6">
+                <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+                    <span class="font-medium">Progreso del Proyecto</span>
+                    <span th:text="${project.completedTasks + ' / ' + project.totalTasks + ' tareas completadas'}">0 / 0 tareas</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-4">
+                    <div th:class="${project.progress >= 75 ? 'bg-green-500' : (project.progress >= 50 ? 'bg-blue-500' : (project.progress >= 25 ? 'bg-yellow-500' : 'bg-red-400'))} + ' h-4 rounded-full transition-all duration-300 flex items-center justify-end'"
+                         th:style="'width: ' + ${project.progress} + '%'">
+                        <span class="text-xs font-bold text-white px-2" th:if="${project.progress > 10}" th:text="${project.progress + '%'}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ESTADÍSTICAS RÁPIDAS -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <!-- Pendientes -->
+            <a th:href="@{/lider/proyecto/{id}(id=${project.id}, status='PENDIENTE')}"
+               class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-gray-400 hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 block">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-gray-600 dark:text-gray-400 uppercase font-medium">Pendientes</div>
+                        <div class="text-3xl font-bold text-gray-900 dark:text-white mt-1" th:text="${project.pendingTasks}">0</div>
+                    </div>
+                    <div class="bg-gray-100 dark:bg-gray-700 rounded-full p-3">
+                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <!-- En Progreso -->
+            <a th:href="@{/lider/proyecto/{id}(id=${project.id}, status='EN_PROGRESO')}"
+               class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-blue-500 hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 block">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-gray-600 dark:text-gray-400 uppercase font-medium">En Progreso</div>
+                        <div class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1" th:text="${project.inProgressTasks}">0</div>
+                    </div>
+                    <div class="bg-blue-100 dark:bg-blue-900 rounded-full p-3">
+                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Completadas -->
+            <a th:href="@{/lider/proyecto/{id}(id=${project.id}, status='COMPLETADO')}"
+               class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-green-500 hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 block">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-gray-600 dark:text-gray-400 uppercase font-medium">Completadas</div>
+                        <div class="text-3xl font-bold text-green-600 dark:text-green-400 mt-1" th:text="${project.completedTasks}">0</div>
+                    </div>
+                    <div class="bg-green-100 dark:bg-green-900 rounded-full p-3">
+                        <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Vencidas -->
+            <a th:href="@{/lider/proyecto/{id}(id=${project.id}, overdue='true')}"
+               class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-red-500 hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 block">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-gray-600 dark:text-gray-400 uppercase font-medium">Vencidas</div>
+                        <div class="text-3xl font-bold text-red-600 dark:text-red-400 mt-1" th:text="${#lists.size(project.overdueTasks)}">0</div>
+                    </div>
+                    <div class="bg-red-100 dark:bg-red-900 rounded-full p-3">
+                        <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- FILTROS Y BÚSQUEDA -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md mb-6 p-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                </svg>
+                Filtros y Búsqueda
+            </h3>
+            <form th:action="@{/lider/proyecto/{projectId}(projectId=${project.id})}" method="get" class="loading-form space-y-4">
+                <!-- Buscador -->
+                <div>
+                    <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Buscar tarea
+                    </label>
+                    <input type="text"
+                           id="search"
+                           name="search"
+                           th:value="${search}"
+                           placeholder="Buscar por título o descripción..."
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                </div>
+
+                <!-- Filtros -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Estado
+                        </label>
+                        <select id="status"
+                                name="status"
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                            <option value="">Todos los estados</option>
+                            <option th:each="st : ${statuses}"
+                                    th:value="${st.name()}"
+                                    th:text="${st.displayName}"
+                                    th:selected="${st == selectedStatus}">
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Prioridad
+                        </label>
+                        <select id="priority"
+                                name="priority"
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                            <option value="">Todas las prioridades</option>
+                            <option th:each="pr : ${priorities}"
+                                    th:value="${pr.name()}"
+                                    th:text="${pr.displayName}"
+                                    th:selected="${pr == selectedPriority}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="flex items-center space-x-3 pt-2">
+                    <button type="submit"
+                            class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition shadow-md flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Aplicar Filtros
+                    </button>
+                    <a th:href="@{/lider/proyecto/{projectId}(projectId=${project.id})}"
+                       class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- LISTA DE TAREAS -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md mb-6">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Tareas del Proyecto</h2>
+                <div class="text-sm text-gray-500" th:if="${taskPage != null}">
+                    Mostrando
+                    <span class="font-semibold text-gray-900 dark:text-white" th:text="${taskPage.numberOfElements}">0</span>
+                    de
+                    <span class="font-semibold text-gray-900 dark:text-white" th:text="${taskPage.totalElements}">0</span>
+                    tareas
+                </div>
+                <div class="text-sm text-gray-500" th:if="${taskPage == null}">
+                    Total: <span class="font-semibold text-gray-900 dark:text-white" th:text="${project.totalTasks}">0</span>
+                </div>
+            </div>
+
+            <!-- TABLA DE TAREAS -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <!-- Tarea (Sortable) -->
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <a th:href="@{/lider/proyecto/{projectId}(
+                                        projectId=${project.id},
+                                        search=${search},
+                                        status=${selectedStatus},
+                                        priority=${selectedPriority},
+                                        page=${currentPage},
+                                        size=${pageSize},
+                                        sortBy='title',
+                                        sortDirection=${sortBy == 'title' and sortDirection == 'ASC' ? 'DESC' : 'ASC'}
+                                    )}"
+                                   class="hover:text-gray-700 dark:text-gray-300 flex items-center cursor-pointer">
+                                    Tarea
+                                    <span th:if="${sortBy == 'title'}" class="ml-1">
+                                        <span th:if="${sortDirection == 'ASC'}">↑</span>
+                                        <span th:if="${sortDirection == 'DESC'}">↓</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <!-- Responsable -->
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Responsable
+                            </th>
+                            <!-- Estado (Sortable) -->
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <a th:href="@{/lider/proyecto/{projectId}(
+                                        projectId=${project.id},
+                                        search=${search},
+                                        status=${selectedStatus},
+                                        priority=${selectedPriority},
+                                        page=${currentPage},
+                                        size=${pageSize},
+                                        sortBy='status',
+                                        sortDirection=${sortBy == 'status' and sortDirection == 'ASC' ? 'DESC' : 'ASC'}
+                                    )}"
+                                   class="hover:text-gray-700 dark:text-gray-300 flex items-center cursor-pointer">
+                                    Estado
+                                    <span th:if="${sortBy == 'status'}" class="ml-1">
+                                        <span th:if="${sortDirection == 'ASC'}">↑</span>
+                                        <span th:if="${sortDirection == 'DESC'}">↓</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <!-- Prioridad (Sortable) -->
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <a th:href="@{/lider/proyecto/{projectId}(
+                                        projectId=${project.id},
+                                        search=${search},
+                                        status=${selectedStatus},
+                                        priority=${selectedPriority},
+                                        page=${currentPage},
+                                        size=${pageSize},
+                                        sortBy='priority',
+                                        sortDirection=${sortBy == 'priority' and sortDirection == 'ASC' ? 'DESC' : 'ASC'}
+                                    )}"
+                                   class="hover:text-gray-700 dark:text-gray-300 flex items-center cursor-pointer">
+                                    Prioridad
+                                    <span th:if="${sortBy == 'priority'}" class="ml-1">
+                                        <span th:if="${sortDirection == 'ASC'}">↑</span>
+                                        <span th:if="${sortDirection == 'DESC'}">↓</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <!-- Vencimiento (Sortable) -->
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <a th:href="@{/lider/proyecto/{projectId}(
+                                        projectId=${project.id},
+                                        search=${search},
+                                        status=${selectedStatus},
+                                        priority=${selectedPriority},
+                                        page=${currentPage},
+                                        size=${pageSize},
+                                        sortBy='dueDate',
+                                        sortDirection=${sortBy == 'dueDate' and sortDirection == 'ASC' ? 'DESC' : 'ASC'}
+                                    )}"
+                                   class="hover:text-gray-700 dark:text-gray-300 flex items-center cursor-pointer">
+                                    Vencimiento
+                                    <span th:if="${sortBy == 'dueDate'}" class="ml-1">
+                                        <span th:if="${sortDirection == 'ASC'}">↑</span>
+                                        <span th:if="${sortDirection == 'DESC'}">↓</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <!-- Acciones -->
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tasks-tbody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        <tr th:if="${#lists.isEmpty(tasks)}">
+                            <td colspan="6" class="px-6 py-12 text-center">
+                                <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <p class="text-gray-500 font-medium mb-2">No hay tareas que coincidan con los filtros</p>
+                                <p class="text-sm text-gray-400 mb-4">Intenta ajustar los filtros o agregar una nueva tarea</p>
+                                <a th:href="@{/lider/proyecto/{id}/nueva-tarea(id=${project.id})}"
+                                   class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    Crear Nueva Tarea
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:each="task : ${tasks}" th:data-id="${task.id}" class="hover:bg-gray-50 transition cursor-move">
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white" th:text="${task.title}">Título</div>
+                                <div class="text-xs text-gray-500 mt-1" th:text="${#strings.abbreviate(task.description, 80)}">Descripción...</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                                        <span class="text-indigo-600 font-medium text-xs" th:text="${#strings.substring(task.assigneeName, 0, 2).toUpperCase()}">AB</span>
+                                    </div>
+                                    <div class="ml-3">
+                                        <span class="text-sm text-gray-900 dark:text-white font-medium" th:text="${task.assigneeName}">Nombre</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span th:class="${task.statusBadgeClass} + ' px-3 py-1 rounded-full text-xs font-medium'"
+                                      th:text="${task.status.displayName}">Estado</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span th:class="${task.priorityBadgeClass} + ' px-3 py-1 rounded-full text-xs font-medium'"
+                                      th:text="${task.priority.displayName}">Prioridad</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <div th:if="${task.dueDate != null}">
+                                    <span th:class="${task.isOverdue ? 'text-red-600 font-semibold' : 'text-gray-600'}"
+                                          th:text="${#temporals.format(task.dueDate, 'dd/MM/yyyy')}">Fecha</span>
+                                    <div th:if="${task.isOverdue}" class="text-xs text-red-500 font-medium">Vencida</div>
+                                </div>
+                                <span th:if="${task.dueDate == null}" class="text-gray-400 text-xs">Sin fecha</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <form th:action="@{/tareas/{id}/actualizar-estado(id=${task.id})}" method="post" class="loading-form flex items-center space-x-2">
+                                    <select name="newStatus"
+                                            th:disabled="${#lists.isEmpty(task.status.getValidNextStates())}"
+                                            class="text-xs border-gray-300 dark:border-gray-600 rounded-md px-3 py-1.5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <option value="" selected disabled>Cambiar a...</option>
+                                        <option th:each="status : ${task.status.getValidNextStates()}"
+                                                th:value="${status.name()}"
+                                                th:text="${status.displayName}">
+                                        </option>
+                                    </select>
+                                    <button type="submit"
+                                            th:disabled="${#lists.isEmpty(task.status.getValidNextStates())}"
+                                            class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-xs font-medium rounded-md transition">
+                                        Guardar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PAGINACIÓN -->
+            <div th:if="${taskPage != null and taskPage.totalPages > 1}" class="bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    <!-- Navegación móvil -->
+                    <a th:if="${taskPage.hasPrevious()}"
+                       th:href="@{/lider/proyecto/{projectId}(
+                           projectId=${project.id},
+                           search=${search},
+                           status=${selectedStatus},
+                           priority=${selectedPriority},
+                           page=${currentPage - 1},
+                           size=${pageSize},
+                           sortBy=${sortBy},
+                           sortDirection=${sortDirection}
+                       )}"
+                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        Anterior
+                    </a>
+                    <a th:if="${taskPage.hasNext()}"
+                       th:href="@{/lider/proyecto/{projectId}(
+                           projectId=${project.id},
+                           search=${search},
+                           status=${selectedStatus},
+                           priority=${selectedPriority},
+                           page=${currentPage + 1},
+                           size=${pageSize},
+                           sortBy=${sortBy},
+                           sortDirection=${sortDirection}
+                       )}"
+                       class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        Siguiente
+                    </a>
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">
+                            Mostrando
+                            <span class="font-medium" th:text="${taskPage.size * taskPage.number + 1}">1</span>
+                            a
+                            <span class="font-medium" th:text="${taskPage.size * taskPage.number + taskPage.numberOfElements}">10</span>
+                            de
+                            <span class="font-medium" th:text="${taskPage.totalElements}">100</span>
+                            resultados
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Paginación">
+                            <!-- Botón Anterior -->
+                            <a th:if="${taskPage.hasPrevious()}"
+                               th:href="@{/lider/proyecto/{projectId}(
+                                   projectId=${project.id},
+                                   search=${search},
+                                   status=${selectedStatus},
+                                   priority=${selectedPriority},
+                                   page=${currentPage - 1},
+                                   size=${pageSize},
+                                   sortBy=${sortBy},
+                                   sortDirection=${sortDirection}
+                               )}"
+                               class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <span class="sr-only">Anterior</span>
+                                ←
+                            </a>
+                            <span th:unless="${taskPage.hasPrevious()}"
+                                  class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-sm font-medium text-gray-300 cursor-not-allowed">
+                                ←
+                            </span>
+
+                            <!-- Números de página con ellipsis -->
+                            <th:block th:with="
+                                startPage=${currentPage > 2 ? currentPage - 2 : 0},
+                                endPage=${currentPage + 2 < taskPage.totalPages - 1 ? currentPage + 2 : taskPage.totalPages - 1}">
+
+                                <!-- Primera página -->
+                                <a th:if="${startPage > 0}"
+                                   th:href="@{/lider/proyecto/{projectId}(
+                                       projectId=${project.id},
+                                       search=${search},
+                                       status=${selectedStatus},
+                                       priority=${selectedPriority},
+                                       page=0,
+                                       size=${pageSize},
+                                       sortBy=${sortBy},
+                                       sortDirection=${sortDirection}
+                                   )}"
+                                   class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    1
+                                </a>
+
+                                <!-- Ellipsis izquierda -->
+                                <span th:if="${startPage > 1}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    ...
+                                </span>
+
+                                <!-- Páginas del rango -->
+                                <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+                                    <a th:if="${i != currentPage}"
+                                       th:href="@{/lider/proyecto/{projectId}(
+                                           projectId=${project.id},
+                                           search=${search},
+                                           status=${selectedStatus},
+                                           priority=${selectedPriority},
+                                           page=${i},
+                                           size=${pageSize},
+                                           sortBy=${sortBy},
+                                           sortDirection=${sortDirection}
+                                       )}"
+                                       th:text="${i + 1}"
+                                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    </a>
+                                    <span th:if="${i == currentPage}"
+                                          th:text="${i + 1}"
+                                          class="relative inline-flex items-center px-4 py-2 border border-indigo-500 bg-indigo-50 text-sm font-medium text-indigo-600">
+                                    </span>
+                                </th:block>
+
+                                <!-- Ellipsis derecha -->
+                                <span th:if="${endPage < taskPage.totalPages - 2}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    ...
+                                </span>
+
+                                <!-- Última página -->
+                                <a th:if="${endPage < taskPage.totalPages - 1}"
+                                   th:href="@{/lider/proyecto/{projectId}(
+                                       projectId=${project.id},
+                                       search=${search},
+                                       status=${selectedStatus},
+                                       priority=${selectedPriority},
+                                       page=${taskPage.totalPages - 1},
+                                       size=${pageSize},
+                                       sortBy=${sortBy},
+                                       sortDirection=${sortDirection}
+                                   )}"
+                                   th:text="${taskPage.totalPages}"
+                                   class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                </a>
+                            </th:block>
+
+                            <!-- Botón Siguiente -->
+                            <a th:if="${taskPage.hasNext()}"
+                               th:href="@{/lider/proyecto/{projectId}(
+                                   projectId=${project.id},
+                                   search=${search},
+                                   status=${selectedStatus},
+                                   priority=${selectedPriority},
+                                   page=${currentPage + 1},
+                                   size=${pageSize},
+                                   sortBy=${sortBy},
+                                   sortDirection=${sortDirection}
+                               )}"
+                               class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <span class="sr-only">Siguiente</span>
+                                →
+                            </a>
+                            <span th:unless="${taskPage.hasNext()}"
+                                  class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-sm font-medium text-gray-300 cursor-not-allowed">
+                                →
+                            </span>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-gray-500">
+                Sistema de Gestión de Proyectos y Tareas
+            </p>
+        </div>
+    </footer>
+
+    <!-- LOADING SPINNER -->
+    <div th:replace="~{fragments/loading :: spinner}"></div>
+
+    <!-- DRAG & DROP SCRIPT -->
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const tbody = document.getElementById('tasks-tbody');
+
+            if (tbody && tbody.children.length > 0) {
+                // Inicializar SortableJS
+                Sortable.create(tbody, {
+                    animation: 150,
+                    ghostClass: 'bg-blue-50',
+                    handle: 'tr',
+                    onEnd: function(evt) {
+                        // Obtener el nuevo orden de las tareas
+                        const taskIds = Array.from(tbody.children)
+                            .filter(row => row.dataset.id)
+                            .map(row => row.dataset.id);
+
+                        // Enviar al servidor
+                        fetch('/tareas/reordenar', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content || ''
+                            },
+                            body: JSON.stringify(taskIds)
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                console.log('Orden actualizado exitosamente');
+                            } else {
+                                console.error('Error al actualizar orden');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- LOADING SCRIPTS -->
+    <div th:replace="~{fragments/loading :: loading-scripts}"></div>
+    <div th:replace="~{fragments/dark-mode :: dark-mode-script}"></div>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Usuario - Admin</title>
+    <div th:replace="~{fragments/dark-mode :: tailwind-dark-config}"></div>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <div th:replace="~{fragments/admin-navbar :: navbar('usuarios')}"></div>
+    <div th:replace="~{fragments/notifications :: toast-container}"></div>
+    <div th:replace="~{fragments/loading :: spinner}"></div>
+
+    <main class="max-w-3xl mx-auto py-8 px-4">
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+            <div class="bg-indigo-600 px-6 py-4">
+                <h2 class="text-2xl font-bold text-white">Editar Usuario</h2>
+                <p class="text-indigo-100 text-sm mt-1" th:text="${user.email}">email</p>
+            </div>
+
+            <form th:action="@{/admin/usuarios/{id}/editar(id=${user.id})}" th:object="${userDto}" method="post" class="px-6 py-6 space-y-6">
+                <!-- Nombre -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre Completo <span class="text-red-500">*</span></label>
+                    <input type="text" th:field="*{fullName}" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    <p th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="mt-1 text-sm text-red-600"></p>
+                </div>
+
+                <!-- Rol -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rol <span class="text-red-500">*</span></label>
+                    <select th:field="*{role}" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        <option th:each="rol : ${roles}" th:value="${rol}" th:text="${rol.displayName}"></option>
+                    </select>
+                    <p th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="mt-1 text-sm text-red-600"></p>
+                    <p class="mt-2 text-xs text-gray-500">⚠️ Cambiar el rol puede afectar los permisos del usuario</p>
+                </div>
+
+                <!-- Info adicional -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-sm text-blue-800"><strong>Email:</strong> <span th:text="${user.email}"></span> (no modificable)</p>
+                    <p class="text-sm text-blue-800 mt-1"><strong>Fecha de registro:</strong> <span th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
+                </div>
+
+                <!-- Cambiar contraseña -->
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-amber-900">Gestión de Contraseña</p>
+                            <p class="text-xs text-amber-700 mt-1">Cambiar la contraseña del usuario desde el panel de administración</p>
+                        </div>
+                        <a th:href="@{/admin/usuarios/{id}/cambiar-password(id=${user.id})}"
+                           class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition">
+                            🔑 Cambiar Contraseña
+                        </a>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200"></div>
+
+                <!-- Botones -->
+                <div class="flex justify-between">
+                    <a href="/admin/usuarios" class="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50">Cancelar</a>
+                    <button type="submit" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-md">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script th:replace="~{fragments/admin-navbar :: mobile-menu-script}"></script>
+    <script th:replace="~{fragments/notifications :: notification-scripts}"></script>
+    <div th:replace="~{fragments/loading :: loading-scripts}"></div>
+    <div th:replace="~{fragments/dark-mode :: dark-mode-script}"></div>
+</body>
+</html>

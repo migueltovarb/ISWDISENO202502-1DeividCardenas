@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html th:fragment="layout (title, content, activeSection)"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!--
+    lider-layout.html - Layout para páginas de Líder
+
+    PROPÓSITO:
+    Layout que incluye la navbar de líder y notificaciones.
+    Todas las páginas del líder (dashboard, proyectos, tareas) usan este layout.
+
+    USO:
+    ```html
+    <!DOCTYPE html>
+    <html th:replace="~{layouts/lider-layout :: layout('Mis Proyectos', ~{::content}, 'proyectos')}">
+    <body>
+        <div th:fragment="content">
+            <!-- Contenido específico -->
+        </div>
+    </body>
+    </html>
+    ```
+
+    @since 2025-11-06
+-->
+<head>
+    <title>Lider Layout</title>
+</head>
+<body>
+    <div th:replace="~{layouts/base :: layout(${title}, ~{::lider-content})}">
+        <div th:fragment="lider-content">
+            <!-- Navbar de Líder -->
+            <div th:replace="~{fragments/lider-navbar :: navbar(${activeSection})}"></div>
+
+            <!-- Toast Container -->
+            <div th:replace="~{fragments/notifications :: toast-container}"></div>
+
+            <!-- Modal de Confirmación -->
+            <div th:replace="~{fragments/notifications :: confirmation-modal}"></div>
+
+            <!-- Contenido principal -->
+            <div th:replace="${content}"></div>
+        </div>
+    </div>
+</body>
+</html>

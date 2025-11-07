@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Tareas - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <div th:replace="~{fragments/dark-mode :: tailwind-dark-config}"></div>
+    <!-- Script para inicializar dark mode antes del render -->
+    <script>
+        // Inicializar tema inmediatamente para evitar flash
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
+    <!-- NAVBAR -->
+    <div th:replace="~{fragments/colaborador-navbar :: navbar('tareas')}"></div>
+
+    <!-- LOADING SPINNER -->
+    <div th:replace="~{fragments/loading :: spinner}"></div>
+
+    <!-- MAIN -->
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <!-- BIENVENIDA -->
+        <div class="mb-6">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white">¡Hola, <span th:text="${userName}">Usuario</span>!</h2>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Aquí están todas las tareas asignadas a ti</p>
+        </div>
+
+        <!-- MENSAJES -->
+        <div th:if="${successMessage}" class="mb-6 p-4 bg-green-50 dark:bg-green-900 border-l-4 border-green-500 rounded-r">
+            <p class="text-sm text-green-700 dark:text-green-200" th:text="${successMessage}"></p>
+        </div>
+        <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-50 dark:bg-red-900 border-l-4 border-red-500 rounded-r">
+            <p class="text-sm text-red-700 dark:text-red-200" th:text="${errorMessage}"></p>
+        </div>
+
+        <!-- ESTADÍSTICAS RÁPIDAS CON FILTROS -->
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+            <!-- Total -->
+            <a href="/mis-tareas"
+               th:classappend="${selectedStatus == null} ? 'ring-2 ring-indigo-500 dark:ring-indigo-400' : ''"
+               class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-gray-400 hover:shadow-lg transition-all duration-200 cursor-pointer">
+                <div class="text-sm text-gray-600 dark:text-gray-400">Total</div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-white" th:text="${#lists.size(allTasks)}">0</div>
+            </a>
+
+            <!-- Pendientes -->
+            <a th:href="@{/mis-tareas(status='PENDIENTE')}"
+               th:classappend="${selectedStatus != null && selectedStatus.name() == 'PENDIENTE'} ? 'ring-2 ring-slate-500' : ''"
+               class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-slate-400 hover:shadow-lg transition-all duration-200 cursor-pointer">
+                <div class="text-sm text-gray-600 dark:text-gray-400">Pendientes</div>
+                <div class="text-2xl font-bold text-slate-700 dark:text-slate-300" th:text="${#lists.size(allTasks.?[status.name() == 'PENDIENTE'])}">0</div>
+            </a>
+
+            <!-- En Progreso -->
+            <a th:href="@{/mis-tareas(status='EN_PROGRESO')}"
+               th:classappend="${selectedStatus != null && selectedStatus.name() == 'EN_PROGRESO'} ? 'ring-2 ring-blue-500' : ''"
+               class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-blue-500 hover:shadow-lg transition-all duration-200 cursor-pointer">
+                <div class="text-sm text-gray-600 dark:text-gray-400">En Progreso</div>
+                <div class="text-2xl font-bold text-blue-600 dark:text-blue-400" th:text="${#lists.size(allTasks.?[status.name() == 'EN_PROGRESO'])}">0</div>
+            </a>
+
+            <!-- En Revisión -->
+            <a th:href="@{/mis-tareas(status='EN_REVISION')}"
+               th:classappend="${selectedStatus != null && selectedStatus.name() == 'EN_REVISION'} ? 'ring-2 ring-amber-500' : ''"
+               class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-amber-500 hover:shadow-lg transition-all duration-200 cursor-pointer">
+                <div class="text-sm text-gray-600 dark:text-gray-400">En Revisión</div>
+                <div class="text-2xl font-bold text-amber-600 dark:text-amber-400" th:text="${#lists.size(allTasks.?[status.name() == 'EN_REVISION'])}">0</div>
+            </a>
+
+            <!-- Bloqueadas -->
+            <a th:href="@{/mis-tareas(status='BLOQUEADA')}"
+               th:classappend="${selectedStatus != null && selectedStatus.name() == 'BLOQUEADA'} ? 'ring-2 ring-red-500' : ''"
+               class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-red-500 hover:shadow-lg transition-all duration-200 cursor-pointer">
+                <div class="text-sm text-gray-600 dark:text-gray-400">Bloqueadas</div>
+                <div class="text-2xl font-bold text-red-600 dark:text-red-400" th:text="${#lists.size(allTasks.?[status.name() == 'BLOQUEADA'])}">0</div>
+            </a>
+
+            <!-- Completadas -->
+            <a th:href="@{/mis-tareas(status='COMPLETADA')}"
+               th:classappend="${selectedStatus != null && selectedStatus.name() == 'COMPLETADA'} ? 'ring-2 ring-green-500' : ''"
+               class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-green-500 hover:shadow-lg transition-all duration-200 cursor-pointer">
+                <div class="text-sm text-gray-600 dark:text-gray-400">Completadas</div>
+                <div class="text-2xl font-bold text-green-600 dark:text-green-400" th:text="${#lists.size(allTasks.?[status.name() == 'COMPLETADA'])}">0</div>
+            </a>
+        </div>
+
+        <!-- TABLA DE TAREAS -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Todas mis tareas</h3>
+                <span class="text-sm text-gray-600 dark:text-gray-400" th:if="${taskPage.totalElements > 0}">
+                    Mostrando <span th:text="${taskPage.number * taskPage.size + 1}">1</span> -
+                    <span th:text="${taskPage.number * taskPage.size + taskPage.numberOfElements}">10</span>
+                    de <span th:text="${taskPage.totalElements}">100</span> tareas
+                </span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                <a th:href="@{/mis-tareas(
+                                    status=${selectedStatus},
+                                    page=${currentPage},
+                                    size=${pageSize},
+                                    sortBy='title',
+                                    sortDirection=${sortBy == 'title' and sortDirection == 'ASC' ? 'DESC' : 'ASC'}
+                                )}" class="hover:text-gray-700 dark:hover:text-gray-300 flex items-center">
+                                    Tarea
+                                    <span th:if="${sortBy == 'title'}" class="ml-1">
+                                        <span th:if="${sortDirection == 'ASC'}">↑</span>
+                                        <span th:if="${sortDirection == 'DESC'}">↓</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                <a th:href="@{/mis-tareas(
+                                    status=${selectedStatus},
+                                    page=${currentPage},
+                                    size=${pageSize},
+                                    sortBy='status',
+                                    sortDirection=${sortBy == 'status' and sortDirection == 'ASC' ? 'DESC' : 'ASC'}
+                                )}" class="hover:text-gray-700 dark:hover:text-gray-300 flex items-center">
+                                    Estado
+                                    <span th:if="${sortBy == 'status'}" class="ml-1">
+                                        <span th:if="${sortDirection == 'ASC'}">↑</span>
+                                        <span th:if="${sortDirection == 'DESC'}">↓</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                <a th:href="@{/mis-tareas(
+                                    status=${selectedStatus},
+                                    page=${currentPage},
+                                    size=${pageSize},
+                                    sortBy='priority',
+                                    sortDirection=${sortBy == 'priority' and sortDirection == 'ASC' ? 'DESC' : 'ASC'}
+                                )}" class="hover:text-gray-700 dark:hover:text-gray-300 flex items-center">
+                                    Prioridad
+                                    <span th:if="${sortBy == 'priority'}" class="ml-1">
+                                        <span th:if="${sortDirection == 'ASC'}">↑</span>
+                                        <span th:if="${sortDirection == 'DESC'}">↓</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                <a th:href="@{/mis-tareas(
+                                    status=${selectedStatus},
+                                    page=${currentPage},
+                                    size=${pageSize},
+                                    sortBy='dueDate',
+                                    sortDirection=${sortBy == 'dueDate' and sortDirection == 'ASC' ? 'DESC' : 'ASC'}
+                                )}" class="hover:text-gray-700 dark:hover:text-gray-300 flex items-center">
+                                    Vencimiento
+                                    <span th:if="${sortBy == 'dueDate'}" class="ml-1">
+                                        <span th:if="${sortDirection == 'ASC'}">↑</span>
+                                        <span th:if="${sortDirection == 'DESC'}">↓</span>
+                                    </span>
+                                </a>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actualizar</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        <!-- CASO VACÍO -->
+                        <tr th:if="${#lists.isEmpty(tasks)}">
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                                </svg>
+                                <p class="text-gray-500 dark:text-gray-400 text-lg mb-2">No se encontraron tareas</p>
+                                <p class="text-gray-400 dark:text-gray-500 text-sm">Intenta seleccionar un filtro diferente arriba</p>
+                            </td>
+                        </tr>
+
+                        <!-- LISTA DE TAREAS -->
+                        <tr th:each="task : ${tasks}" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            <!-- INFORMACIÓN DE LA TAREA -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-start">
+                                    <div class="flex-1">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white" th:text="${task.title}">Título</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1" th:text="${#strings.abbreviate(task.description, 80)}">Descripción...</div>
+                                        <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                            Creada por: <span th:text="${task.creatorName}">Creador</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- ESTADO ACTUAL -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span th:class="${task.statusBadgeClass} + ' px-3 py-1 rounded-full text-xs font-medium'"
+                                      th:text="${task.status.displayName}">Estado</span>
+                            </td>
+
+                            <!-- PRIORIDAD -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span th:class="${task.priorityBadgeClass} + ' px-3 py-1 rounded-full text-xs font-medium'"
+                                      th:text="${task.priority.displayName}">Prioridad</span>
+                            </td>
+
+                            <!-- FECHA DE VENCIMIENTO -->
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <div th:if="${task.dueDate != null}">
+                                    <div th:class="${task.isOverdue ? 'text-red-600 dark:text-red-400 font-medium' : 'text-gray-600 dark:text-gray-400'}"
+                                         th:text="${#temporals.format(task.dueDate, 'dd/MM/yyyy')}">Fecha</div>
+                                    <div th:if="${task.isOverdue}" class="text-xs text-red-500 mt-1 flex items-center">
+                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                        </svg>
+                                        Vencida
+                                    </div>
+                                </div>
+                                <span th:if="${task.dueDate == null}" class="text-gray-400 text-sm">Sin fecha</span>
+                            </td>
+
+                            <!-- ACTUALIZAR ESTADO -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <form th:action="@{/tareas/{id}/actualizar-estado(id=${task.id})}" method="post" class="flex flex-col space-y-2 loading-form">
+                                    <select name="newStatus"
+                                            th:disabled="${#lists.isEmpty(task.status.getValidNextStates())}"
+                                            class="text-sm border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <option value="" selected disabled>Cambiar a...</option>
+                                        <option th:each="status : ${task.status.getValidNextStates()}"
+                                                th:value="${status.name()}"
+                                                th:text="${status.displayName}">
+                                        </option>
+                                    </select>
+                                    <button type="submit"
+                                            th:disabled="${#lists.isEmpty(task.status.getValidNextStates())}"
+                                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition">
+                                        Actualizar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PAGINACIÓN -->
+            <div th:if="${taskPage.totalPages > 1}" class="bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    <a th:if="${taskPage.hasPrevious()}"
+                       th:href="@{/mis-tareas(
+                           status=${selectedStatus},
+                           page=${currentPage - 1},
+                           size=${pageSize},
+                           sortBy=${sortBy},
+                           sortDirection=${sortDirection}
+                       )}"
+                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        Anterior
+                    </a>
+                    <a th:if="${taskPage.hasNext()}"
+                       th:href="@{/mis-tareas(
+                           status=${selectedStatus},
+                           page=${currentPage + 1},
+                           size=${pageSize},
+                           sortBy=${sortBy},
+                           sortDirection=${sortDirection}
+                       )}"
+                       class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        Siguiente
+                    </a>
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">
+                            Mostrando
+                            <span class="font-medium" th:text="${taskPage.number * taskPage.size + 1}">1</span>
+                            a
+                            <span class="font-medium" th:text="${taskPage.number * taskPage.size + taskPage.numberOfElements}">10</span>
+                            de
+                            <span class="font-medium" th:text="${taskPage.totalElements}">100</span>
+                            resultados
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                            <!-- Previous -->
+                            <a th:if="${taskPage.hasPrevious()}"
+                               th:href="@{/mis-tareas(status=${selectedStatus},page=${currentPage-1},size=${pageSize},sortBy=${sortBy},sortDirection=${sortDirection})}"
+                               class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                ←
+                            </a>
+                            <span th:unless="${taskPage.hasPrevious()}"
+                                  class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-sm font-medium text-gray-300 dark:text-gray-500 cursor-not-allowed">
+                                ←
+                            </span>
+
+                            <!-- Page numbers -->
+                            <th:block th:each="i : ${#numbers.sequence(0, taskPage.totalPages - 1)}">
+                                <a th:if="${i < 2 or i > taskPage.totalPages - 3 or (i >= currentPage - 2 and i <= currentPage + 2)}"
+                                   th:href="@{/mis-tareas(status=${selectedStatus},page=${i},size=${pageSize},sortBy=${sortBy},sortDirection=${sortDirection})}"
+                                   th:classappend="${i == currentPage} ? 'z-10 bg-indigo-50 dark:bg-indigo-900 border-indigo-500 text-indigo-600 dark:text-indigo-300' : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                                   class="relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                    <span th:text="${i + 1}">1</span>
+                                </a>
+                                <span th:if="${i == 2 and currentPage > 4}"
+                                      class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300">...</span>
+                                <span th:if="${i == taskPage.totalPages - 3 and currentPage < taskPage.totalPages - 5}"
+                                      class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300">...</span>
+                            </th:block>
+
+                            <!-- Next -->
+                            <a th:if="${taskPage.hasNext()}"
+                               th:href="@{/mis-tareas(status=${selectedStatus},page=${currentPage+1},size=${pageSize},sortBy=${sortBy},sortDirection=${sortDirection})}"
+                               class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                →
+                            </a>
+                            <span th:unless="${taskPage.hasNext()}"
+                                  class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-sm font-medium text-gray-300 dark:text-gray-500 cursor-not-allowed">
+                                →
+                            </span>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AYUDA -->
+        <div class="mt-6 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div class="flex items-start">
+                <svg class="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <div class="text-sm text-blue-800 dark:text-blue-200">
+                    <p class="font-medium mb-1">Estados de tareas:</p>
+                    <ul class="list-disc list-inside space-y-1 text-blue-700 dark:text-blue-300">
+                        <li><strong>Pendiente:</strong> La tarea está esperando para ser iniciada</li>
+                        <li><strong>En Progreso:</strong> Estás trabajando activamente en la tarea</li>
+                        <li><strong>En Revisión:</strong> Has terminado y está pendiente de aprobación</li>
+                        <li><strong>Completada:</strong> La tarea ha sido finalizada y aprobada</li>
+                        <li><strong>Bloqueada:</strong> Hay impedimentos que previenen continuar</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SCRIPTS -->
+    <div th:replace="~{fragments/loading :: loading-scripts}"></div>
+    <div th:replace="~{fragments/colaborador-navbar :: mobile-menu-script}"></div>
+    <div th:replace="~{fragments/dark-mode :: dark-mode-script}"></div>
+</body>
+</html>

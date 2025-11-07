@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Proyecto - Admin</title>
+    <div th:replace="~{fragments/dark-mode :: tailwind-dark-config}"></div>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200 min-h-screen">
+    <!-- NAVBAR -->
+    <div th:replace="~{fragments/admin-navbar :: navbar('crear-proyecto')}"></div>
+    <div th:replace="~{fragments/notifications :: toast-container}"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-3xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+            <!-- HEADER -->
+            <div class="bg-indigo-600 px-6 py-4">
+                <h2 class="text-2xl font-bold text-white flex items-center">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                    </svg>
+                    Crear Nuevo Proyecto
+                </h2>
+                <p class="text-indigo-100 text-sm mt-1">Asigna un líder que gestionará el proyecto</p>
+            </div>
+
+            <!-- MESSAGES -->
+            <div class="px-6 pt-6">
+                <div th:if="${successMessage}" class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 rounded-r">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <p class="text-sm text-green-700" th:text="${successMessage}"></p>
+                    </div>
+                </div>
+                <div th:if="${errorMessage}" class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <p class="text-sm text-red-700" th:text="${errorMessage}"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORM -->
+            <form th:action="@{/admin/crear-proyecto}" th:object="${projectDto}" method="post" class="px-6 pb-6 space-y-6">
+                <!-- NOMBRE -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre del Proyecto <span class="text-red-500">*</span></label>
+                    <input type="text" th:field="*{name}" placeholder="Ej: Sistema de Inventarios" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                    <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="mt-1 text-sm text-red-600"></p>
+                    <p class="mt-1 text-xs text-gray-500">Mínimo 3 caracteres</p>
+                </div>
+
+                <!-- DESCRIPCIÓN -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Descripción <span class="text-red-500">*</span></label>
+                    <textarea th:field="*{description}" rows="4" placeholder="Describe los objetivos y alcance del proyecto..." class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"></textarea>
+                    <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="mt-1 text-sm text-red-600"></p>
+                    <p class="mt-1 text-xs text-gray-500">Mínimo 10 caracteres</p>
+                </div>
+
+                <!-- LÍDER -->
+                <div>
+                    <label for="leaderId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Líder del Proyecto <span class="text-red-500">*</span></label>
+                    <select th:field="*{leaderId}" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                        <option value="" selected disabled>Seleccione un líder</option>
+                        <option th:each="lider : ${lideres}" th:value="${lider.id}" th:text="${lider.fullName + ' (' + lider.email + ')'}"></option>
+                    </select>
+                    <p th:if="${#fields.hasErrors('leaderId')}" th:errors="*{leaderId}" class="mt-1 text-sm text-red-600"></p>
+                    <p class="mt-1 text-xs text-gray-500">El líder podrá gestionar el proyecto y asignar tareas</p>
+                </div>
+
+                <div class="border-t border-gray-200"></div>
+
+                <!-- BUTTONS -->
+                <div class="flex items-center justify-between">
+                    <a href="/admin/dashboard" class="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 transition">Cancelar</a>
+                    <button type="submit" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition shadow-md hover:shadow-lg flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Crear Proyecto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- SCRIPTS -->
+    <script th:replace="~{fragments/admin-navbar :: mobile-menu-script}"></script>
+    <script th:replace="~{fragments/notifications :: notification-scripts}"></script>
+    <div th:replace="~{fragments/dark-mode :: dark-mode-script}"></div>
+</body>
+</html>

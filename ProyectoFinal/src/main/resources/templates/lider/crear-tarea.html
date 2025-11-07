@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Tarea - Líder</title>
+    <div th:replace="~{fragments/dark-mode :: tailwind-dark-config}"></div>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200 min-h-screen">
+    <!-- NAVBAR -->
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Panel de Líder</h1>
+                <div class="flex items-center space-x-4">
+                    <a th:href="@{/lider/proyecto/{id}(id=${projectId})}"
+                       class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                        Volver al Proyecto
+                    </a>
+
+                    <!-- Dark Mode Toggle -->
+                    <div th:replace="~{fragments/dark-mode :: toggle-button}"></div>
+
+                    <form th:action="@{/logout}" method="post" class="inline">
+                        <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                            Cerrar Sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+            <!-- HEADER -->
+            <div class="bg-indigo-600 px-6 py-4">
+                <h2 class="text-2xl font-bold text-white flex items-center">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                    </svg>
+                    Nueva Tarea
+                </h2>
+                <p class="text-indigo-100 text-sm mt-1">Asigna una tarea a un colaborador</p>
+            </div>
+
+            <!-- MESSAGES -->
+            <div class="px-6 pt-6">
+                <div th:if="${errorMessage}" class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r">
+                    <p class="text-sm text-red-700" th:text="${errorMessage}"></p>
+                </div>
+            </div>
+
+            <!-- FORM -->
+            <form th:action="@{/lider/proyecto/{id}/nueva-tarea(id=${projectId})}"
+                  th:object="${taskDto}"
+                  method="post"
+                  class="px-6 pb-6 space-y-6">
+
+                <!-- TÍTULO -->
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Título de la Tarea <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text"
+                           th:field="*{title}"
+                           placeholder="Ej: Implementar módulo de autenticación"
+                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                    <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="mt-1 text-sm text-red-600"></p>
+                    <p class="mt-1 text-xs text-gray-500">Sé conciso y descriptivo (5-200 caracteres)</p>
+                </div>
+
+                <!-- DESCRIPCIÓN -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Descripción <span class="text-red-500">*</span>
+                    </label>
+                    <textarea th:field="*{description}"
+                              rows="5"
+                              placeholder="Describe los requisitos, criterios de aceptación y recursos necesarios..."
+                              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"></textarea>
+                    <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="mt-1 text-sm text-red-600"></p>
+                    <p class="mt-1 text-xs text-gray-500">Incluye contexto y criterios de aceptación (10-2000 caracteres)</p>
+                </div>
+
+                <!-- RESPONSABLE -->
+                <div>
+                    <label for="assignedToId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Responsable <span class="text-red-500">*</span>
+                    </label>
+                    <select th:field="*{assignedToId}"
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                        <option value="" selected disabled>Seleccione un colaborador</option>
+                        <option th:each="collab : ${collaborators}"
+                                th:value="${collab.id}"
+                                th:text="${collab.displayName()}">
+                        </option>
+                    </select>
+                    <p th:if="${#fields.hasErrors('assignedToId')}" th:errors="*{assignedToId}" class="mt-1 text-sm text-red-600"></p>
+                    <p class="mt-1 text-xs text-gray-500">Asigna la tarea a un miembro del equipo</p>
+                </div>
+
+                <!-- PRIORIDAD Y FECHA EN GRID -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- PRIORIDAD -->
+                    <div>
+                        <label for="priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Prioridad <span class="text-red-500">*</span>
+                        </label>
+                        <select th:field="*{priority}"
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                            <option th:each="p : ${priorities}"
+                                    th:value="${p.name()}"
+                                    th:text="|${p.displayName} - ${p.description}|">
+                            </option>
+                        </select>
+                        <p th:if="${#fields.hasErrors('priority')}" th:errors="*{priority}" class="mt-1 text-sm text-red-600"></p>
+                    </div>
+
+                    <!-- FECHA DE VENCIMIENTO -->
+                    <div>
+                        <label for="dueDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Fecha de Vencimiento
+                        </label>
+                        <input type="date"
+                               th:field="*{dueDate}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                        <p th:if="${#fields.hasErrors('dueDate')}" th:errors="*{dueDate}" class="mt-1 text-sm text-red-600"></p>
+                        <p class="mt-1 text-xs text-gray-500">Opcional</p>
+                    </div>
+                </div>
+
+                <!-- INFO BOX -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                        <div class="text-sm text-blue-800">
+                            <p class="font-medium mb-1">Buenas prácticas:</p>
+                            <ul class="list-disc list-inside space-y-1 text-blue-700">
+                                <li>Define criterios de aceptación claros</li>
+                                <li>Estima el esfuerzo necesario</li>
+                                <li>Establece fechas realistas</li>
+                                <li>Asigna tareas según la capacidad del equipo</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200"></div>
+
+                <!-- BUTTONS -->
+                <div class="flex items-center justify-between">
+                    <a th:href="@{/lider/proyecto/{id}(id=${projectId})}"
+                       class="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 transition">
+                        Cancelar
+                    </a>
+                    <button type="submit"
+                            class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition shadow-md hover:shadow-lg flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Crear Tarea
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+    <div th:replace="~{fragments/dark-mode :: dark-mode-script}"></div>
+</body>
+</html>

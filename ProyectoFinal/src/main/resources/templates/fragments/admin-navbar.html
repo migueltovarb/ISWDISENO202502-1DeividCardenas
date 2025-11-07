@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <!-- NAVBAR FRAGMENT FOR ADMIN -->
+    <nav th:fragment="navbar(activeMenu)" class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/Título -->
+                <div class="flex items-center">
+                    <a href="/admin/dashboard" class="flex items-center">
+                        <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">Panel de Administración</h1>
+                    </a>
+                </div>
+
+                <!-- Menú de navegación Desktop -->
+                <div class="hidden md:flex items-center space-x-2">
+                    <a href="/admin/dashboard"
+                       th:classappend="${activeMenu == 'dashboard'} ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'"
+                       class="px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                        <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                        </svg>
+                        Dashboard
+                    </a>
+
+                    <a href="/admin/usuarios"
+                       th:classappend="${activeMenu == 'usuarios'} ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'"
+                       class="px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                        <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                        Usuarios
+                    </a>
+
+                    <a href="/admin/crear-usuario"
+                       th:classappend="${activeMenu == 'crear-usuario'} ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'"
+                       class="px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                        <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                        </svg>
+                        Crear Usuario
+                    </a>
+
+                    <a href="/admin/proyectos"
+                       th:classappend="${activeMenu == 'proyectos'} ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'"
+                       class="px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                        <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                        </svg>
+                        Proyectos
+                    </a>
+
+                    <a href="/admin/crear-proyecto"
+                       th:classappend="${activeMenu == 'crear-proyecto'} ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'"
+                       class="px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                        <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                        </svg>
+                        Crear Proyecto
+                    </a>
+
+                    <!-- Dark Mode Toggle -->
+                    <div th:replace="~{fragments/dark-mode :: toggle-button}"></div>
+
+                    <!-- Divisor -->
+                    <div class="border-l border-gray-300 dark:border-gray-600 h-6 mx-2"></div>
+
+                    <!-- Botón de logout -->
+                    <form th:action="@{/logout}" method="post" class="inline">
+                        <button type="submit"
+                                class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900 px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                            <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            </svg>
+                            Cerrar Sesión
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Botón menú móvil -->
+                <div class="md:hidden flex items-center space-x-2">
+                    <!-- Dark Mode Toggle Mobile -->
+                    <div th:replace="~{fragments/dark-mode :: toggle-button}"></div>
+
+                    <button id="mobile-menu-button" type="button"
+                            class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 dark:focus:ring-indigo-400 p-2 rounded-md">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menú móvil -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="/admin/dashboard"
+                   th:classappend="${activeMenu == 'dashboard'} ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'"
+                   class="block px-3 py-2 rounded-md text-base font-medium">
+                    Dashboard
+                </a>
+                <a href="/admin/usuarios"
+                   th:classappend="${activeMenu == 'usuarios'} ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'"
+                   class="block px-3 py-2 rounded-md text-base font-medium">
+                    Usuarios
+                </a>
+                <a href="/admin/crear-usuario"
+                   th:classappend="${activeMenu == 'crear-usuario'} ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'"
+                   class="block px-3 py-2 rounded-md text-base font-medium">
+                    Crear Usuario
+                </a>
+                <a href="/admin/proyectos"
+                   th:classappend="${activeMenu == 'proyectos'} ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'"
+                   class="block px-3 py-2 rounded-md text-base font-medium">
+                    Proyectos
+                </a>
+                <a href="/admin/crear-proyecto"
+                   th:classappend="${activeMenu == 'crear-proyecto'} ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'"
+                   class="block px-3 py-2 rounded-md text-base font-medium">
+                    Crear Proyecto
+                </a>
+                <form th:action="@{/logout}" method="post" class="mt-2">
+                    <button type="submit"
+                            class="w-full text-left text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900 block px-3 py-2 rounded-md text-base font-medium">
+                        Cerrar Sesión
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Script para menú móvil -->
+    <script th:fragment="mobile-menu-script">
+        document.getElementById('mobile-menu-button')?.addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>

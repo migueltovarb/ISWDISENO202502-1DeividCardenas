@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" class="">
+<!--
+    login.html - Página de Inicio de Sesión
+
+    PROPÓSITO:
+    Formulario de autenticación donde los usuarios ingresan sus credenciales
+    (email y contraseña) para acceder al sistema.
+
+    TECNOLOGÍAS:
+    - Thymeleaf: Motor de plantillas del lado del servidor
+    - Tailwind CSS: Framework de CSS para diseño responsivo
+    - Spring Security: Procesa la autenticación
+
+    FLUJO:
+    1. Usuario carga GET /login
+    2. Ve este formulario
+    3. Ingresa email y contraseña
+    4. Envía POST /login (interceptado por Spring Security)
+    5. Spring Security valida credenciales
+    6. Si es correcto → Redirige a /dashboard
+    7. Si es incorrecto → Redirige a /login?error=true
+
+    CARACTERÍSTICAS:
+    - Diseño centrado y responsivo
+    - Mensajes de error dinámicos
+    - Mensaje de logout
+    - Campo CSRF automático (Spring Security)
+    - Validación HTML5
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Gestión de Proyectos</title>
+    <div th:replace="~{fragments/dark-mode :: tailwind-dark-config}"></div>
+
+    <!--
+        TAILWIND CSS - CDN para desarrollo
+        En producción, deberías usar una build optimizada
+    -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Favicon (opcional) -->
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico" th:href="@{/images/favicon.ico}">
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 min-h-screen flex items-center justify-center p-4">
+    <!--
+        CONTENEDOR PRINCIPAL
+        - min-h-screen: Altura mínima de toda la pantalla
+        - flex items-center justify-center: Centra el contenido vertical y horizontalmente
+        - bg-gradient: Fondo con degradado de azul claro a índigo
+    -->
+
+    <div class="w-full max-w-md">
+        <!--
+            TARJETA DE LOGIN
+            - max-w-md: Ancho máximo de 448px
+            - bg-white: Fondo blanco
+            - rounded-2xl: Bordes redondeados
+            - shadow-2xl: Sombra pronunciada
+        -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+
+            <!-- ENCABEZADO -->
+            <div class="text-center mb-8">
+                <!-- Icono o Logo (puedes reemplazarlo con tu logo) -->
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-full mb-4">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+
+                <!-- Título -->
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    Iniciar Sesión
+                </h1>
+
+                <!-- Subtítulo -->
+                <p class="text-gray-600 dark:text-gray-400">
+                    Gestión de Proyectos y Tareas
+                </p>
+            </div>
+
+            <!--
+                MENSAJES DE ERROR
+                th:if: Directiva de Thymeleaf que muestra el elemento solo si la condición es verdadera
+                ${param.error}: Verifica si existe el parámetro 'error' en la URL
+            -->
+            <div th:if="${param.error}" class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r">
+                <div class="flex items-center">
+                    <!-- Icono de error -->
+                    <svg class="w-5 h-5 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <!-- Mensaje de error desde el controlador -->
+                    <p class="text-sm text-red-700" th:text="${errorMessage}">
+                        Email o contraseña incorrectos
+                    </p>
+                </div>
+            </div>
+
+            <!--
+                MENSAJE DE LOGOUT
+                Se muestra cuando el usuario cierra sesión exitosamente
+            -->
+            <div th:if="${param.logout}" class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 rounded-r">
+                <div class="flex items-center">
+                    <!-- Icono de éxito -->
+                    <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <!-- Mensaje de logout desde el controlador -->
+                    <p class="text-sm text-green-700" th:text="${logoutMessage}">
+                        Has cerrado sesión exitosamente
+                    </p>
+                </div>
+            </div>
+
+            <!--
+                MENSAJE DE REGISTRO EXITOSO
+                Se muestra cuando el usuario se registra exitosamente
+            -->
+            <div th:if="${successMessage}" class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 rounded-r">
+                <div class="flex items-center">
+                    <!-- Icono de éxito -->
+                    <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <!-- Mensaje de éxito desde el controlador -->
+                    <p class="text-sm text-green-700" th:text="${successMessage}">
+                        Registro exitoso
+                    </p>
+                </div>
+            </div>
+
+            <!--
+                FORMULARIO DE LOGIN
+
+                ATRIBUTOS IMPORTANTES:
+                - method="post": Envía datos por POST (más seguro que GET)
+                - th:action="@{/login}": URL de destino (procesado por Spring Security)
+                - @{...}: Sintaxis de Thymeleaf para URLs, maneja contexto automáticamente
+            -->
+            <form method="post" th:action="@{/login}" class="space-y-6">
+
+                <!--
+                    CAMPO CSRF (Cross-Site Request Forgery)
+
+                    Spring Security lo añade AUTOMÁTICAMENTE en formularios Thymeleaf.
+                    Es un token de seguridad que previene ataques CSRF.
+
+                    No necesitas añadirlo manualmente, pero si lo hicieras:
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                -->
+
+                <!-- CAMPO EMAIL -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Email
+                    </label>
+                    <div class="relative">
+                        <!-- Icono de email -->
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                            </svg>
+                        </div>
+                        <!--
+                            INPUT DE EMAIL
+
+                            ATRIBUTOS:
+                            - type="email": Validación HTML5 de formato de email
+                            - name="email": Nombre que Spring Security espera (configurado en SecurityConfig)
+                            - id="email": Para asociar con el label
+                            - required: Validación HTML5, campo obligatorio
+                            - autofocus: El cursor se posiciona aquí al cargar la página
+                            - autocomplete="email": Permite autocompletar desde el navegador
+                        -->
+                        <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            required
+                            autofocus
+                            autocomplete="email"
+                            placeholder="admin@gestion.com"
+                            class="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
+                                   focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+                                   transition duration-150 ease-in-out
+                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                                   text-sm placeholder-gray-400 dark:placeholder-gray-500">
+                    </div>
+                    <!-- Ayuda contextual -->
+                    <p class="mt-1 text-xs text-gray-500">
+                        Usuario de prueba: admin@gestion.com
+                    </p>
+                </div>
+
+                <!-- CAMPO PASSWORD -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Contraseña
+                    </label>
+                    <div class="relative">
+                        <!-- Icono de candado -->
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <!--
+                            INPUT DE PASSWORD
+
+                            ATRIBUTOS:
+                            - type="password": Oculta los caracteres ingresados
+                            - name="password": Nombre que Spring Security espera
+                            - required: Campo obligatorio
+                            - autocomplete="current-password": Permite autocompletar desde el navegador
+                        -->
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            required
+                            autocomplete="current-password"
+                            placeholder="••••••••"
+                            class="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
+                                   focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+                                   transition duration-150 ease-in-out
+                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                                   text-sm placeholder-gray-400 dark:placeholder-gray-500">
+                    </div>
+                    <!-- Ayuda contextual -->
+                    <p class="mt-1 text-xs text-gray-500">
+                        Contraseña de prueba: admin123
+                    </p>
+                </div>
+
+                <!-- OPCIONES ADICIONALES (Opcional) -->
+                <div class="flex items-center justify-between">
+                    <!-- Checkbox "Recordarme" (comentado porque no está implementado en el backend) -->
+                    <!--
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox"
+                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                            Recordarme
+                        </label>
+                    </div>
+                    -->
+
+                    <!-- Enlace "Olvidé mi contraseña" (comentado porque no está implementado) -->
+                    <!--
+                    <div class="text-sm">
+                        <a href="/forgot-password" class="font-medium text-indigo-600 hover:text-indigo-500">
+                            ¿Olvidaste tu contraseña?
+                        </a>
+                    </div>
+                    -->
+                </div>
+
+                <!-- BOTÓN DE SUBMIT -->
+                <div>
+                    <button
+                        type="submit"
+                        class="w-full flex justify-center items-center py-3 px-4
+                               bg-indigo-600 hover:bg-indigo-700
+                               text-white font-medium rounded-lg
+                               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                               transition duration-150 ease-in-out
+                               shadow-md hover:shadow-lg">
+                        <!-- Icono de login -->
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                        </svg>
+                        Iniciar Sesión
+                    </button>
+                </div>
+            </form>
+
+            <!-- SEPARADOR Y ENLACE A REGISTRO -->
+            <div class="mt-6">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+                            ¿No tienes cuenta?
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <a th:href="@{/register}"
+                       class="w-full flex justify-center py-2 px-4
+                              border border-gray-300 dark:border-gray-600 rounded-lg
+                              text-sm font-medium text-gray-700 dark:text-gray-300
+                              hover:bg-gray-50 dark:hover:bg-gray-700
+                              transition duration-150 ease-in-out">
+                        Crear una cuenta
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="text-center mt-8 text-sm text-gray-600 dark:text-gray-400">
+            <p>
+                &copy; 2025 Gestión de Proyectos. Todos los derechos reservados.
+            </p>
+        </div>
+    </div>
+
+    <!--
+        SCRIPTS ADICIONALES (Opcional)
+
+        Podrías añadir JavaScript para:
+        - Validaciones personalizadas del lado del cliente
+        - Mostrar/ocultar contraseña con un botón
+        - Animaciones
+        - Analytics
+    -->
+    <script>
+        // Ejemplo: Mostrar/ocultar contraseña (si añades un botón)
+        // const togglePassword = document.querySelector('#toggle-password');
+        // const password = document.querySelector('#password');
+        //
+        // togglePassword.addEventListener('click', function() {
+        //     const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        //     password.setAttribute('type', type);
+        //     this.classList.toggle('active');
+        // });
+    </script>
+    <div th:replace="~{fragments/dark-mode :: dark-mode-script}"></div>
+</body>
+</html>
