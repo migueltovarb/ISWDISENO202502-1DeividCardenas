@@ -649,5 +649,25 @@
     <!-- LOADING SCRIPTS -->
     <div th:replace="~{fragments/loading :: loading-scripts}"></div>
     <div th:replace="~{fragments/dark-mode :: dark-mode-script}"></div>
+
+    <!-- SCRIPT DE BÚSQUEDA AL PRESIONAR ENTER -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search');
+            const filterForm = document.querySelector('form[action*="/lider/proyecto"]');
+            let searchTimeout;
+
+            if (searchInput && filterForm) {
+                // Búsqueda al presionar Enter
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        filterForm.submit();
+                    }
+                });
+
+            }
+        });
+    </script>
 </body>
 </html>
